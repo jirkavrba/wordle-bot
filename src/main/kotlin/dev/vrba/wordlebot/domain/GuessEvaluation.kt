@@ -13,13 +13,13 @@ fun evaluateGuess(guess: String, solution: String): GuessEvaluation {
     val zipped = guess.zip(solution)
     val letters = zipped
         .filter { (g, s) -> g != s }
-        .map { (g, _) -> g }
+        .map { (_, s) -> s }
 
     val initial = letters to emptyList<LetterEvaluation>()
     val (_, evaluation) = zipped.fold(initial) { (letters, evaluation), (guess, solution) ->
         when (guess) {
             solution -> letters to evaluation + LetterEvaluation.Correct
-            in letters -> letters - guess to evaluation + LetterEvaluation.Present
+            in letters -> (letters - guess) to evaluation + LetterEvaluation.Present
             else -> letters to evaluation + LetterEvaluation.Absent
         }
     }
