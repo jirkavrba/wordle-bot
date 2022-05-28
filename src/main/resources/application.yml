@@ -1,2 +1,3 @@
 bot:
   webhook: ${DISCORD_WEBHOOK}
+  solve-on-startup: ${SOLVE_ON_STARTUP:false}

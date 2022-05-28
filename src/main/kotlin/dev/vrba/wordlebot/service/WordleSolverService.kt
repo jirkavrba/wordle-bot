@@ -1,16 +1,22 @@
 package dev.vrba.wordlebot.service
 
+import dev.vrba.wordlebot.configuration.BotConfiguration
 import dev.vrba.wordlebot.domain.GuessEvaluation
 import dev.vrba.wordlebot.domain.evaluateGuess
 import dev.vrba.wordlebot.domain.matchesEvaluations
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import org.springframework.boot.CommandLineRunner
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
 import kotlin.math.log2
 
 @Service
-class WordleSolverService(private val wordlistService: WordlistService, private val discordService: DiscordService) {
+class WordleSolverService(
+    private val wordlistService: WordlistService,
+    private val discordService: DiscordService,
+    private val configuration: BotConfiguration
+) : CommandLineRunner{
 
     private val logger: Logger = LoggerFactory.getLogger(this::class.qualifiedName)
 
@@ -68,6 +74,12 @@ class WordleSolverService(private val wordlistService: WordlistService, private 
             val entropy = p * log2(1/p)
 
             entropy
+        }
+    }
+
+    override fun run(vararg args: String?) {
+        if (configuration.solveOnStartup) {
+            solveWordleForToday()
         }
     }
 }

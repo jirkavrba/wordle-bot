@@ -5,4 +5,7 @@ import org.springframework.boot.context.properties.ConstructorBinding
 
 @ConstructorBinding
 @ConfigurationProperties(prefix = "bot")
-class BotConfiguration(val webhook: String)
+class BotConfiguration(
+    val webhook: String,
+    val solveOnStartup: Boolean = false
+)

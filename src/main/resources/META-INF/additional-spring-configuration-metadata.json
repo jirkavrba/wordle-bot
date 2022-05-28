@@ -3,6 +3,10 @@
     {
       "name": "bot.webhook",
       "type": "java.lang.String"
+    },
+    {
+      "name": "bot.solve-on-startup",
+      "type": "java.lang.Boolean"
     }
   ]
 }
