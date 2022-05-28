@@ -2,7 +2,6 @@ package dev.vrba.wordlebot.service
 
 import club.minnced.discord.webhook.WebhookClient
 import dev.vrba.wordlebot.configuration.BotConfiguration
-import org.knowm.xchart.AnnotationText
 import org.knowm.xchart.BitmapEncoder
 import org.knowm.xchart.XYChartBuilder
 import org.knowm.xchart.XYSeries
