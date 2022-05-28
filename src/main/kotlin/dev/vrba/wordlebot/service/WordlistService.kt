@@ -9,9 +9,9 @@ class WordlistService {
     // Wordle started on 19th Jun 2021
     private val startDate = LocalDate.of(2021, 6, 19)
 
-    val answers: List<String> = readResource("/wordle-answers.txt")
+    private final val answers: List<String> = readResource("/wordle-answers.txt")
 
-    val wordlist: List<String> = readResource("/wordle-wordlist.txt")
+    val wordlist: Set<String> = (readResource("/wordle-wordlist.txt") + answers).toSet()
 
     private fun readResource(resource: String): List<String> {
         return this::class.java.getResource(resource)

@@ -38,10 +38,14 @@ data class GuessEvaluation(
 }
 
 fun matchesEvaluations(word: String, evaluations: List<GuessEvaluation>): Boolean {
-    return evaluations.all {
-        // For each evaluation, check, that the letter mask can be matched with this word
-        return it.letterMask().zip(word.toList()).all { (letters, letter) -> letter in letters }
+    // Combine all evaluations into a single letter mask
+    val initial = List(5) { ('a' .. 'z').toSet() }
+    val combined = evaluations.fold(initial) { mask, evaluation ->
+        mask.zip(evaluation.letterMask())
+            .map { (mask, reduction) -> mask.intersect(reduction) }
     }
+
+    return combined.zip(word.toList()).all { (mask, letter) -> letter in mask }
 }
 
 fun evaluateGuess(guess: String, solution: String): GuessEvaluation {
