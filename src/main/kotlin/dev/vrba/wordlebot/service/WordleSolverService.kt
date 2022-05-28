@@ -12,7 +12,7 @@ import java.util.concurrent.TimeUnit
 import kotlin.math.log2
 
 @Service
-class WordleSolverService(private val wordlistService: WordlistService) {
+class WordleSolverService(private val wordlistService: WordlistService, private val discordService: DiscordService) {
 
     private val logger: Logger = LoggerFactory.getLogger(this::class.qualifiedName)
 
@@ -36,16 +36,16 @@ class WordleSolverService(private val wordlistService: WordlistService) {
             prunedWordlist to evaluations
         }
         .takeWhile { (wordlist, _) -> wordlist.isNotEmpty() }
-        .last()
-        .second + evaluateGuess(solution, solution)
+        .toList()
 
         val header = "Wordle ${wordlistService.getCurrentWordleIndex()} ${iterations.size}/6"
-        val result = iterations
+        val evaluations = iterations.last().second + evaluateGuess(solution, solution)
+        val result = evaluations
             .joinToString("\n") { it.toString() }
             .replace("\uD83D\uDFE5", "⬛")
 
-        println(header)
-        println(result)
+        logger.info("Found solution in ${iterations.size + 1} iterations")
+        discordService.postWordleSolution(header, result)
     }
 
     private fun pruneWordlist(wordlist: Set<String>, evaluations: List<GuessEvaluation>): Set<String> {
