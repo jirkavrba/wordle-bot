@@ -7,9 +7,11 @@ import dev.vrba.wordlebot.configuration.BotConfiguration
 import org.springframework.stereotype.Service
 
 @Service
-class DiscordService(private val configuration: BotConfiguration) {
+class DiscordService(configuration: BotConfiguration) {
 
-    private val client: WebhookClient = WebhookClient.withUrl(configuration.webhook)
+    private val clients = configuration.webhook
+        .split(";")
+        .map { WebhookClient.withUrl(it) }
 
     fun postWordleSolution(header: String, solution: String) {
         val embed = WebhookEmbedBuilder()
@@ -18,6 +20,6 @@ class DiscordService(private val configuration: BotConfiguration) {
             .setFooter(WebhookEmbed.EmbedFooter("Nerd shit like entropy distribution charts coming soon!", null))
             .build()
 
-        client.send(embed)
+        clients.forEach { it.send(embed) }
     }
 }
