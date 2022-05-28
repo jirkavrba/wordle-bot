@@ -1,14 +1,12 @@
 package dev.vrba.wordlebot.service
 
 import dev.vrba.wordlebot.domain.GuessEvaluation
-import dev.vrba.wordlebot.domain.LetterEvaluation
 import dev.vrba.wordlebot.domain.evaluateGuess
 import dev.vrba.wordlebot.domain.matchesEvaluations
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
-import java.util.concurrent.TimeUnit
 import kotlin.math.log2
 
 @Service
@@ -16,7 +14,7 @@ class WordleSolverService(private val wordlistService: WordlistService, private 
 
     private val logger: Logger = LoggerFactory.getLogger(this::class.qualifiedName)
 
-    @Scheduled(fixedRate = 24, timeUnit = TimeUnit.HOURS)
+    @Scheduled(cron = "0 0 8 * * *")
     fun solveWordleForToday() {
         val solution = wordlistService.getAnswerForToday()
         val wordlist = wordlistService.wordlist
