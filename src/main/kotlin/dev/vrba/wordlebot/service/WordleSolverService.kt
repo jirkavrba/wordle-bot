@@ -1,6 +1,7 @@
 package dev.vrba.wordlebot.service
 
 import dev.vrba.wordlebot.domain.GuessEvaluation
+import dev.vrba.wordlebot.domain.LetterEvaluation
 import dev.vrba.wordlebot.domain.evaluateGuess
 import dev.vrba.wordlebot.domain.matchesEvaluations
 import org.slf4j.Logger
@@ -23,25 +24,28 @@ class WordleSolverService(private val wordlistService: WordlistService) {
         logger.info("Solving wordle $solution")
         logger.info("Total available words: ${wordlist.size}")
 
-        // This is just to save performance as the first guess is always the same (based on the current fitting algorithm)
-        val first = listOf(evaluateGuess("tares", solution))
-        val initial = pruneWordlist(wordlist, first) to first
-
-        val iterations = first + generateSequence(initial) { (wordlist, history) ->
-            val guess = findNextBestWord(wordlist)
+        val initial = wordlist to emptyList<GuessEvaluation>()
+        val iterations = generateSequence(initial) { (wordlist, history) ->
+            // This is just to save performance as the first guess is always the same
+            val guess = if (history.isEmpty()) "tares" else findNextBestWord(wordlist)
             val evaluation = evaluateGuess(guess, solution)
 
             val evaluations = history + evaluation
             val prunedWordlist = pruneWordlist(wordlist, evaluations) - guess
 
-            logger.info("Trying $guess -> pruned to ${prunedWordlist.size} remaining words")
-
             prunedWordlist to evaluations
         }
         .takeWhile { (wordlist, _) -> wordlist.isNotEmpty() }
-        .toList()
+        .last()
+        .second + evaluateGuess(solution, solution)
 
-        logger.info("Solved in ${iterations.size} pruning iterations")
+        val header = "Wordle ${wordlistService.getCurrentWordleIndex()} ${iterations.size}/6"
+        val result = iterations
+            .joinToString("\n") { it.toString() }
+            .replace("\uD83D\uDFE5", "⬛")
+
+        println(header)
+        println(result)
     }
 
     private fun pruneWordlist(wordlist: Set<String>, evaluations: List<GuessEvaluation>): Set<String> {

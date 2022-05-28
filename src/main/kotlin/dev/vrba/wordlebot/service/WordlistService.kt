@@ -24,9 +24,13 @@ class WordlistService {
      * Provides the solution for today's wordle based on the wordlist, so I don't have to web scrape the site
      */
     fun getAnswerForToday(): String {
+        return answers[getCurrentWordleIndex()]
+    }
+
+    fun getCurrentWordleIndex(): Int {
         val today = LocalDate.now()
         val days = today.toEpochDay() - startDate.toEpochDay()
 
-        return answers[days.toInt()]
+        return days.toInt()
     }
 }
