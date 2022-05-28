@@ -28,53 +28,61 @@ class WordleSolverService(
         logger.info("Solving wordle $solution")
         logger.info("Total available words: ${wordlist.size}")
 
-        val initial = wordlist to emptyList<GuessEvaluation>()
-        val iterations = generateSequence(initial) { (wordlist, history) ->
+        val initial = Triple(wordlist, emptyList<GuessEvaluation>(), emptyList<List<Int>?>())
+        val iterations = generateSequence(initial) { (wordlist, history, distributions) ->
             // This is just to save performance as the first guess is always the same
-            val guess = if (history.isEmpty()) "tares" else findNextBestWord(wordlist)
+            val (guess, distribution) = if (history.isEmpty()) "tares" to null
+                                        else findNextBestWord(wordlist)
+
             val evaluation = evaluateGuess(guess, solution)
 
             val evaluations = history + evaluation
             val prunedWordlist = pruneWordlist(wordlist, evaluations) - guess
 
-            prunedWordlist to evaluations
+            Triple(prunedWordlist, evaluations, distributions + distribution)
         }
-        .takeWhile { (wordlist, _) -> wordlist.isNotEmpty() }
+        .takeWhile { (wordlist, _, _) -> wordlist.isNotEmpty() }
         .toList()
 
         val header = "Wordle ${wordlistService.getCurrentWordleIndex()} ${iterations.size}/6"
-        val evaluations = iterations.last().second + evaluateGuess(solution, solution)
-        val result = evaluations
+        val result = (iterations.last().second + evaluateGuess(solution, solution))
             .joinToString("\n") { it.toString() }
             .replace("\uD83D\uDFE5", "⬛")
 
-        logger.info("Found solution in ${iterations.size + 1} iterations")
-        discordService.postWordleSolution(header, result)
+        // Collect entropy distributions so I can make fancy charts
+        val distributions = iterations
+            .flatMap { it.third }
+            .filterNotNull()
+
+        val words = iterations.map { it.first.size }
+
+        discordService.postWordleSolution(header, result, distributions, words)
     }
 
     private fun pruneWordlist(wordlist: Set<String>, evaluations: List<GuessEvaluation>): Set<String> {
         return wordlist.filter { matchesEvaluations(it, evaluations) }.toSet()
     }
 
-    private fun findNextBestWord(wordlist: Set<String>): String {
-        return wordlist.maxByOrNull { computeWordEntropy(it, wordlist) }
+    private fun findNextBestWord(wordlist: Set<String>): Pair<String, List<Int>> {
+        return wordlist
+            .map { word ->
+                val distribution = wordlist
+                    .map { evaluateGuess(word, it).evaluation }
+                    .groupBy { it }
+                    .map { it.value.size }
+                    .sortedDescending()
+
+                word to distribution
+            }
+            .maxByOrNull { (word, distribution) ->
+                distribution.sumOf {
+                    val p = it.toDouble() / wordlist.size
+                    val entropy = p * log2(1/p)
+
+                    entropy
+                }
+            }
             ?: throw IllegalStateException("The provided wordlist is empty!")
-    }
-
-    private fun computeWordEntropy(word: String, wordlist: Set<String>): Double {
-        val patterns = wordlist
-            .map { evaluateGuess(word, it).evaluation }
-            .groupBy { it }
-            .map { it.value.size }
-            .sortedDescending()
-
-        return patterns.sumOf {
-            // E(x) = p(x) * log2(p(x))
-            val p = it.toDouble() / wordlist.size
-            val entropy = p * log2(1/p)
-
-            entropy
-        }
     }
 
     override fun run(vararg args: String?) {
