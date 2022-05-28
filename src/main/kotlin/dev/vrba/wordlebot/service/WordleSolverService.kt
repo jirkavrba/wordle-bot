@@ -56,6 +56,9 @@ class WordleSolverService(
 
         val words = iterations.map { it.first.size }
 
+        logger.info("Solved wordle after ${words.size} iterations")
+
+
         discordService.postWordleSolution(header, result, distributions, words)
     }
 
