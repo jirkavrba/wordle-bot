@@ -2,6 +2,7 @@ package dev.vrba.wordlebot.service
 
 import club.minnced.discord.webhook.WebhookClient
 import dev.vrba.wordlebot.configuration.BotConfiguration
+import org.knowm.xchart.AnnotationText
 import org.knowm.xchart.BitmapEncoder
 import org.knowm.xchart.XYChartBuilder
 import org.knowm.xchart.XYSeries
@@ -32,16 +33,15 @@ class DiscordService(configuration: BotConfiguration) {
     private fun createPruningChart(words: List<Int>): ByteArray {
         val chart = XYChartBuilder()
             .xAxisTitle("Iteration")
-            .yAxisTitle("Number of acceptable words")
-            .width(600)
-            .height(400)
-            .theme(Styler.ChartTheme.GGPlot2)
+            .yAxisTitle("Number of available words")
+            .width(1200)
+            .height(600)
+            .theme(Styler.ChartTheme.Matlab)
             .build()
 
-        chart.addSeries("Wordlist size", words).apply {
+        chart.addSeries("Number of available words", words).apply {
             marker = None()
-            isSmooth = false
-            xySeriesRenderStyle = XYSeries.XYSeriesRenderStyle.StepArea
+            xySeriesRenderStyle = XYSeries.XYSeriesRenderStyle.Line
         }
 
         return BitmapEncoder.getBitmapBytes(chart, BitmapEncoder.BitmapFormat.PNG)
@@ -52,18 +52,15 @@ class DiscordService(configuration: BotConfiguration) {
             .title("Entropy distribution after each iteration")
             .xAxisTitle("Number of patterns")
             .yAxisTitle("Number of occurrences")
-            .width(600)
-            .height(400)
-            .theme(Styler.ChartTheme.GGPlot2)
+            .width(1200)
+            .height(600)
+            .theme(Styler.ChartTheme.Matlab)
             .build()
 
+        chart.styler.isYAxisLogarithmic = true
         distributions.forEachIndexed { index, distribution ->
-            val max = distribution.maxOrNull()?.toDouble() ?: 1.0
-            val values = distribution.map { it / max }
-
-            chart.addSeries("Iteration #${index + 1}", values).apply {
+            chart.addSeries("Iteration #${index + 1}", distribution).apply {
                 marker = None()
-                isSmooth = true
                 xySeriesRenderStyle = XYSeries.XYSeriesRenderStyle.Line
             }
         }

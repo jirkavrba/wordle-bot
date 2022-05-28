@@ -36,10 +36,12 @@ class WordleSolverService(
 
             val evaluation = evaluateGuess(guess, solution)
 
+            logger.info("Tried $guess -> $evaluation")
+
             val evaluations = history + evaluation
             val prunedWordlist = pruneWordlist(wordlist, evaluations) - guess
 
-            Triple(prunedWordlist, evaluations, distributions + distribution)
+            Triple(prunedWordlist, evaluations, distributions + listOf(distribution))
         }
         .takeWhile { (wordlist, _, _) -> wordlist.isNotEmpty() }
         .toList()
