@@ -1,0 +1,6 @@
+version: "3"
+services:
+  bot:
+    image: "wordle-bot:0.0.1-SNAPSHOT"
+    environment:
+      DISCORD_WEBHOOK: ${DISCORD_WEBHOOK}

@@ -17,7 +17,6 @@ class DiscordService(configuration: BotConfiguration) {
         val embed = WebhookEmbedBuilder()
             .setDescription(solution)
             .setTitle(WebhookEmbed.EmbedTitle(header, "https://nytimes.com/wordle"))
-            .setFooter(WebhookEmbed.EmbedFooter("Nerd shit like entropy distribution charts coming soon!", null))
             .build()
 
         clients.forEach { it.send(embed) }
