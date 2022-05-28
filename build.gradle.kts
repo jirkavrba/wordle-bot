@@ -45,6 +45,7 @@ tasks.withType<Test> {
 }
 
 tasks.withType<BootBuildImage> {
+    imageName = "jirkavrba/wordle-bot"
     builder = "paketobuildpacks/builder:tiny"
     environment = mapOf("BP_NATIVE_IMAGE" to "true")
 }
