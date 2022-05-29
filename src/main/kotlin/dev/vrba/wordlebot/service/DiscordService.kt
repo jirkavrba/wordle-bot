@@ -6,6 +6,7 @@ import org.knowm.xchart.BitmapEncoder
 import org.knowm.xchart.XYChartBuilder
 import org.knowm.xchart.XYSeries
 import org.knowm.xchart.style.Styler
+import org.knowm.xchart.style.markers.Cross
 import org.knowm.xchart.style.markers.None
 import org.springframework.stereotype.Service
 
@@ -57,10 +58,11 @@ class DiscordService(configuration: BotConfiguration) {
             .build()
 
         chart.styler.isYAxisLogarithmic = true
+        chart.styler.isXAxisLogarithmic = true
         distributions.forEachIndexed { index, distribution ->
             chart.addSeries("Iteration #${index + 1}", distribution).apply {
                 marker = None()
-                xySeriesRenderStyle = XYSeries.XYSeriesRenderStyle.Line
+                xySeriesRenderStyle = XYSeries.XYSeriesRenderStyle.Step
             }
         }
 

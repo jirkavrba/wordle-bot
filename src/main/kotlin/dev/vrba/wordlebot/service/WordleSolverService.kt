@@ -60,7 +60,6 @@ class WordleSolverService(
 
         logger.info("Solved wordle after ${words.size} iterations")
 
-
         discordService.postWordleSolution(header, result, distributions, words)
     }
 
@@ -79,7 +78,7 @@ class WordleSolverService(
 
                 word to distribution
             }
-            .maxByOrNull { (word, distribution) ->
+            .maxByOrNull { (_, distribution) ->
                 distribution.sumOf {
                     val p = it.toDouble() / wordlist.size
                     val entropy = p * log2(1/p)
