@@ -1,6 +1,7 @@
 version: "3"
 services:
   bot:
-    image: "wordle-bot:0.0.1-SNAPSHOT"
+    build: "."
     environment:
       DISCORD_WEBHOOK: ${DISCORD_WEBHOOK}
+      RUN_ON_STARTUP: "true"

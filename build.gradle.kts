@@ -1,12 +1,11 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-import org.springframework.boot.gradle.tasks.bundling.BootBuildImage
+import org.springframework.boot.gradle.tasks.bundling.BootJar
 
 plugins {
     id("org.springframework.boot") version "2.7.0"
     id("io.spring.dependency-management") version "1.0.11.RELEASE"
     kotlin("jvm") version "1.6.21"
     kotlin("plugin.spring") version "1.6.21"
-    id("org.springframework.experimental.aot") version "0.12.0-SNAPSHOT"
 }
 
 group = "dev.vrba"
@@ -45,8 +44,8 @@ tasks.withType<Test> {
     useJUnitPlatform()
 }
 
-tasks.withType<BootBuildImage> {
-    imageName = "jirkavrba/wordle-bot"
-    builder = "paketobuildpacks/builder:tiny"
-    environment = mapOf("BP_NATIVE_IMAGE" to "true")
+tasks.withType<BootJar> {
+    manifest {
+        attributes["Start-Class"] = "dev.vrba.wordlebot.WordleBotApplicationKt"
+    }
 }
