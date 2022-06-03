@@ -2,13 +2,9 @@ package dev.vrba.wordlebot.service
 
 import club.minnced.discord.webhook.WebhookClient
 import dev.vrba.wordlebot.configuration.BotConfiguration
-import org.knowm.xchart.BitmapEncoder
-import org.knowm.xchart.XYChartBuilder
-import org.knowm.xchart.XYSeries
-import org.knowm.xchart.style.Styler
-import org.knowm.xchart.style.markers.Cross
-import org.knowm.xchart.style.markers.None
+import dev.vrba.wordlebot.domain.GuessEvaluation
 import org.springframework.stereotype.Service
+import java.io.File
 
 @Service
 class DiscordService(configuration: BotConfiguration) {
@@ -17,55 +13,32 @@ class DiscordService(configuration: BotConfiguration) {
         .split(";")
         .map { WebhookClient.withUrl(it) }
 
-    fun postWordleSolution(header: String, solution: String, distributions: List<List<Int>>, words: List<Int>) {
-        val content = "$header\n\n$solution"
-
-        val pruning = createPruningChart(words)
-        val entropy = createDistributionChart(distributions)
+    fun postWordleSolution(index: Int, solution: List<GuessEvaluation>) {
+        val header = "Wordle $index ${solution.size}/6"
+        val video = renderSolutionVideo(index, solution)
 
         clients.forEach {
-            it.send(content)
-            it.send(pruning, "pruning.png")
-            it.send(entropy, "entropy.png")
+            it.send(header)
+            it.send(video, "wordle_$index.mp4")
         }
+
+        // Delete all previously rendered videos
+        Runtime.getRuntime().exec("rm -rf /app/render/out/*.mp4")
     }
 
-    private fun createPruningChart(words: List<Int>): ByteArray {
-        val chart = XYChartBuilder()
-            .xAxisTitle("Iteration")
-            .yAxisTitle("Number of available words")
-            .width(1200)
-            .height(600)
-            .theme(Styler.ChartTheme.Matlab)
-            .build()
+    private fun renderSolutionVideo(index: Int, solution: List<GuessEvaluation>): ByteArray {
+        // Build options passed to the js video renderer
+        val evaluation = solution.flatMap { it.evaluation }.joinToString("") { it.symbol }
+        val props = """{"index": $index, "evaluation": "$evaluation"}"""
 
-        chart.addSeries("Number of available words", words).apply {
-            marker = None()
-            xySeriesRenderStyle = XYSeries.XYSeriesRenderStyle.Line
-        }
+        ProcessBuilder()
+            .directory(File("/app/render"))
+            .command(listOf("bash", "-l", "-c", "npm run build --props '$props'"))
+            .start()
+            .waitFor()
 
-        return BitmapEncoder.getBitmapBytes(chart, BitmapEncoder.BitmapFormat.PNG)
-    }
-
-    private fun createDistributionChart(distributions: List<List<Int>>): ByteArray {
-        val chart = XYChartBuilder()
-            .title("Entropy distribution after each iteration")
-            .xAxisTitle("Number of patterns")
-            .yAxisTitle("Number of occurrences")
-            .width(1200)
-            .height(600)
-            .theme(Styler.ChartTheme.Matlab)
-            .build()
-
-        chart.styler.isYAxisLogarithmic = true
-        chart.styler.isXAxisLogarithmic = true
-        distributions.forEachIndexed { index, distribution ->
-            chart.addSeries("Iteration #${index + 1}", distribution).apply {
-                marker = None()
-                xySeriesRenderStyle = XYSeries.XYSeriesRenderStyle.Step
-            }
-        }
-
-        return BitmapEncoder.getBitmapBytes(chart, BitmapEncoder.BitmapFormat.PNG)
+        return File("/app/render/out/video.mp4")
+            .inputStream()
+            .readAllBytes()
     }
 }
