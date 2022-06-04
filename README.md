@@ -3,9 +3,12 @@
 
 Bot solving wordle every day and shitposting about it on my favorite Discord servers.
 
-![Written in Kotlin](https://img.shields.io/badge/written%20in-kotlin-7F52FF?style=for-the-badge&logo=kotlin&logoColor=white)
-![Powered by Spring Boot](https://img.shields.io/badge/powered%20by-spring%20boot-6DB33F?style=for-the-badge&logo=spring&logoColor=white)
-![Shitposting on Discord](https://img.shields.io/badge/shitposting%20on-discord-5865F2?style=for-the-badge&logo=discord&logoColor=white)
+![Made with crayons](https://forthebadge.com/images/badges/made-with-crayons.svg)
+![0% optimized](https://forthebadge.com/images/badges/0-percent-optimized.svg)
+![Gluten free](https://forthebadge.com/images/badges/gluten-free.svg)
+![60% of the time words every time](https://forthebadge.com/images/badges/60-percent-of-the-time-works-every-time.svg)
+![Powered by black magic](https://forthebadge.com/images/badges/powered-by-black-magic.svg)
+![You didn't ask for this](https://forthebadge.com/images/badges/you-didnt-ask-for-this.svg)
 
 The bot is also capable of procedural video rendering of the evaluated solution:
 
