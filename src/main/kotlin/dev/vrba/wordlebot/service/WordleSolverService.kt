@@ -77,6 +77,8 @@ class WordleSolverService(
     }
 
     override fun run(vararg args: String?) {
-        solveWordleForToday()
+        if (configuration.solveOnStartup) {
+            solveWordleForToday()
+        }
     }
 }
