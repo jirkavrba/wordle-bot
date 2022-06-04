@@ -33,7 +33,7 @@ class DiscordService(configuration: BotConfiguration) {
 
         ProcessBuilder()
             .directory(File("/app/render"))
-            .command(listOf("bash", "-l", "-c", "npm run build --props '$props'"))
+            .command(listOf("bash", "-l", "-c", "npx remotion render src/index.tsx wordle out/video.mp4 --props '$props'"))
             .start()
             .waitFor()
 
