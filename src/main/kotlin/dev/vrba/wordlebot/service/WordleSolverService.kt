@@ -23,7 +23,7 @@ class WordleSolverService(
     @Scheduled(cron = "0 0 8 * * *")
     fun solveWordleForToday() {
         val solution = wordlistService.getAnswerForToday()
-        val wordlist = wordlistService.wordlist
+        val wordlist = wordlistService.answers.toSet()
 
         logger.info("Solving wordle $solution")
         logger.info("Total available words: ${wordlist.size}")
